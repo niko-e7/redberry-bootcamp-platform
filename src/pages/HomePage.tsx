@@ -6,6 +6,15 @@ import api from "../services/api";
 import type { Course } from "../types/course";
 import { useAuth } from "../context/AuthContext";
 
+interface Enrollment {
+  id: number;
+  quantity: number;
+  totalPrice: number;
+  progress: number;
+  completedAt: string | null;
+  course: Course;
+}
+
 // Hero slides data
 const SLIDES = [
   {
@@ -63,7 +72,6 @@ function HeroSlider() {
 
   const prev = () => goTo((current - 1 + SLIDES.length) % SLIDES.length);
   const next = () => goTo((current + 1) % SLIDES.length);
-
   const slide = SLIDES[current];
 
   return (
@@ -86,7 +94,6 @@ function HeroSlider() {
         </Link>
       </div>
 
-      {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {SLIDES.map((_, i) => (
           <button
@@ -99,7 +106,6 @@ function HeroSlider() {
         ))}
       </div>
 
-      {/* Arrows */}
       <button
         onClick={prev}
         className="absolute right-16 bottom-6 flex h-9 w-9 items-center justify-center rounded-full border border-white/40 text-white hover:bg-white/20 transition-colors"
@@ -167,7 +173,60 @@ function FeaturedCourseCard({ course }: { course: Course }) {
   );
 }
 
-// Locked / Blurred Continue Learning
+// In Progress Course Card
+function InProgressCard({ enrollment }: { enrollment: Enrollment }) {
+  const { course, progress } = enrollment;
+
+  return (
+    <div className="flex gap-4 rounded-2xl bg-white border border-gray-100 p-4 shadow-sm">
+      <img
+        src={course.image}
+        alt={course.title}
+        className="h-16 w-20 rounded-lg object-cover shrink-0"
+      />
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <div>
+            <p className="text-xs text-gray-400">
+              Lecturer{" "}
+              <span className="font-medium text-gray-600">
+                {course.instructor.name}
+              </span>
+            </p>
+            <h4 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2">
+              {course.title}
+            </h4>
+          </div>
+          {course.avgRating ? (
+            <span className="flex items-center gap-1 text-amber-400 text-xs font-medium shrink-0">
+              <FaStar className="text-xs" />
+              {course.avgRating}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-auto">
+          <p className="text-xs text-gray-500 mb-1">{progress}% Complete</p>
+          <div className="h-1.5 w-full rounded-full bg-gray-100">
+            <div
+              className="h-1.5 rounded-full bg-indigo-600 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Link
+        to={`/courses/${course.id}`}
+        className="self-center rounded-lg border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition-colors shrink-0"
+      >
+        View
+      </Link>
+    </div>
+  );
+}
+
+// Locked Continue Learning
 const MOCK_CARDS = [1, 2, 3];
 
 function LockedContinueLearning() {
@@ -191,7 +250,6 @@ function LockedContinueLearning() {
         ))}
       </div>
 
-      {/* Lock overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 rounded-2xl bg-white border border-gray-100 px-10 py-8 shadow-lg">
           <FiLock className="text-4xl text-indigo-400" />
@@ -210,69 +268,135 @@ function LockedContinueLearning() {
   );
 }
 
-// HomePage
-function HomePage() {
+// Featured Courses Section
+function FeaturedCoursesSection() {
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
       .get("/courses/featured")
-      .then((res) => {
-        setFeaturedCourses(res.data.data);
-      })
+      .then((res) => setFeaturedCourses(res.data.data))
       .catch(() => setFeaturedCourses([]))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-[1920px] px-24 py-10 space-y-14">
-      {/* Hero */}
-      <HeroSlider />
+    <section>
+      <h2 className="text-2xl font-bold text-gray-900 mb-1">
+        Start Learning Today
+      </h2>
+      <p className="text-sm text-gray-500 mb-8">
+        Choose from our most popular courses and begin your journey
+      </p>
 
-      {/* Featured Courses */}
-      <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">
-          Start Learning Today
-        </h2>
-        <p className="text-sm text-gray-500 mb-8">
-          Choose from our most popular courses and begin your journey
-        </p>
+      {loading ? (
+        <div className="grid grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-[420px] rounded-2xl bg-gray-100 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {featuredCourses.map((course) => (
+            <FeaturedCourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
-        {loading ? (
-          <div className="grid grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-[420px] rounded-2xl bg-gray-100 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-6">
-            {featuredCourses.map((course) => (
-              <FeaturedCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        )}
-      </section>
+// Continue Learning Section
+function ContinueLearningSection() {
+  const { isAuthenticated, openLogin } = useAuth();
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      {/* Continue Learning */}
-      <section>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Continue Learning
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">Pick up where you left</p>
-          </div>
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+    api
+      .get("/courses/in-progress")
+      .then((res) => setEnrollments(res.data.data))
+      .catch(() => setEnrollments([]))
+      .finally(() => setLoading(false));
+  }, [isAuthenticated]);
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Continue Learning
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">Pick up where you left</p>
+        </div>
+        {isAuthenticated && enrollments.length > 0 && (
           <button className="text-sm font-medium text-indigo-600 hover:underline">
             See All
           </button>
-        </div>
+        )}
+      </div>
 
+      {!isAuthenticated ? (
         <LockedContinueLearning />
-      </section>
+      ) : loading ? (
+        <div className="grid grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-24 rounded-2xl bg-gray-100 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : enrollments.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white py-14 text-center">
+          <p className="text-sm font-medium text-gray-600 mb-4">
+            You haven't enrolled in any courses yet. Start your learning journey today!
+          </p>
+          <Link
+            to="/courses"
+            className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+          >
+            Browse Courses
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {enrollments.map((enrollment) => (
+            <InProgressCard key={enrollment.id} enrollment={enrollment} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// HomePage
+function HomePage() {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <div className="mx-auto w-full max-w-[1920px] px-24 py-10 space-y-14">
+      <HeroSlider />
+
+      {isAuthenticated ? (
+        <>
+          <ContinueLearningSection />
+          <FeaturedCoursesSection />
+        </>
+      ) : (
+        <>
+          <FeaturedCoursesSection />
+          <ContinueLearningSection />
+        </>
+      )}
     </div>
   );
 }
