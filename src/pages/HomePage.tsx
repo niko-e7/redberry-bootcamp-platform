@@ -4,6 +4,7 @@ import { FiChevronLeft, FiChevronRight, FiLock } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import api from "../services/api";
 import type { Course } from "../types/course";
+import { useAuth } from "../context/AuthContext";
 
 // Hero slides data
 const SLIDES = [
@@ -132,10 +133,12 @@ function FeaturedCourseCard({ course }: { course: Course }) {
               {course.instructor.name}
             </span>
           </span>
-          <span className="flex items-center gap-1 text-amber-400 font-medium">
-            <FaStar className="text-xs" />
-            {course.avgRating}
-          </span>
+          {course.avgRating ? (
+            <span className="flex items-center gap-1 text-amber-400 font-medium">
+              <FaStar className="text-xs" />
+              {course.avgRating}
+            </span>
+          ) : null}
         </div>
 
         <h3 className="text-lg font-bold text-gray-900 mb-2 leading-snug">
@@ -168,6 +171,8 @@ function FeaturedCourseCard({ course }: { course: Course }) {
 const MOCK_CARDS = [1, 2, 3];
 
 function LockedContinueLearning() {
+  const { openLogin } = useAuth();
+
   return (
     <div className="relative">
       <div className="grid grid-cols-3 gap-6 select-none pointer-events-none">
@@ -193,7 +198,10 @@ function LockedContinueLearning() {
           <p className="text-sm font-medium text-gray-600">
             Sign in to track your learning progress
           </p>
-          <button className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+          <button
+            onClick={openLogin}
+            className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+          >
             Log In
           </button>
         </div>
