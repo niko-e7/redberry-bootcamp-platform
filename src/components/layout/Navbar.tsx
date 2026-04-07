@@ -5,15 +5,20 @@ import { FaRocket } from "react-icons/fa";
 import { FiBookOpen, FiUser } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import ProfileModal from "../modals/ProfileModal";
+import EnrolledSidebar from "../EnrolledSidebar";
 
 function Navbar() {
   const { isAuthenticated, user, openLogin, openRegister } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   return (
     <>
       {showProfile && (
         <ProfileModal onClose={() => setShowProfile(false)} />
+      )}
+      {showSidebar && (
+        <EnrolledSidebar onClose={() => setShowSidebar(false)} />
       )}
 
       <header className="border-b border-gray-200 bg-white">
@@ -36,7 +41,10 @@ function Navbar() {
 
             {isAuthenticated ? (
               <>
-                <button className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600">
+                <button
+                  onClick={() => setShowSidebar(true)}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors"
+                >
                   <FiBookOpen />
                   Enrolled Courses
                 </button>
