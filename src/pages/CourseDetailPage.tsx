@@ -5,6 +5,7 @@ import { FaStar } from "react-icons/fa";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Course } from "../types/course";
+import ProfileModal from "../components/modals/ProfileModal";
 
 // Types
 interface WeeklySchedule {
@@ -243,6 +244,7 @@ function CourseDetailPage() {
   } | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const [enrolling, setEnrolling] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -409,6 +411,7 @@ function CourseDetailPage() {
           isRated={course.isRated}
         />
       )}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
@@ -723,7 +726,10 @@ function CourseDetailPage() {
                       You need to fill in your profile details before enrolling.
                     </p>
                   </div>
-                  <button className="ml-3 shrink-0 rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors">
+                  <button
+                    onClick={() => setShowProfile(true)}
+                    className="ml-3 shrink-0 rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+                  >
                     Complete →
                   </button>
                 </div>
