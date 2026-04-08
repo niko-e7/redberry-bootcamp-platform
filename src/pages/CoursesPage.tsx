@@ -5,6 +5,13 @@ import { FaStar } from "react-icons/fa";
 import { PiSparkleFill } from "react-icons/pi";
 import api from "../services/api";
 import type { Course } from "../types/course";
+import {
+  FiCode,
+  FiPenTool,
+  FiBriefcase,
+  FiTrendingUp,
+  FiDatabase,
+} from "react-icons/fi";
 
 interface Category {
   id: number;
@@ -39,39 +46,52 @@ const SORT_OPTIONS = [
   { value: "title_asc", label: "Title: A-Z" },
 ];
 
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  development: <FiCode className="text-xs" />,
+  design: <FiPenTool className="text-xs" />,
+  business: <FiBriefcase className="text-xs" />,
+  marketing: <FiTrendingUp className="text-xs" />,
+  "data-science": <FiDatabase className="text-xs" />,
+};
+
 // Course Card
 function CourseCard({ course }: { course: Course }) {
   return (
     <Link
       to={`/courses/${course.id}`}
-      className="flex flex-col rounded-2xl bg-white overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+      className="flex flex-col rounded-2xl bg-white border border-gray-100 hover:border-indigo-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all"
     >
-      <img
-        src={course.image}
-        alt={course.title}
-        className="h-[160px] w-full object-cover"
-      />
+      <div className="p-3 pb-0">
+        <img
+          src={course.image}
+          alt={course.title}
+          className="h-[160px] w-full object-cover rounded-xl"
+        />
+      </div>
       <div className="flex flex-col flex-1 p-4">
         <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-          <span className="flex items-center gap-1 text-indigo-500 font-medium">
-            <PiSparkleFill />
-            {course.category.name}
+          <span className="text-sm font-medium text-gray-700">
+            {course.instructor.name}
           </span>
-          {course.avgRating ? (
-            <span className="flex items-center gap-1 text-amber-400 font-medium">
-              <FaStar className="text-xs" />
-              {course.avgRating}
-            </span>
-          ) : null}
+          <div className="flex items-center gap-2 text-gray-400">
+            <span>{course.durationWeeks} Weeks</span>
+            {course.avgRating ? (
+              <span className="flex items-center gap-1 text-amber-400 font-medium">
+                <FaStar className="text-xs" />
+                {course.avgRating}
+              </span>
+            ) : null}
+          </div>
         </div>
 
-        <h3 className="text-sm font-bold text-gray-900 leading-snug mb-1 line-clamp-2">
+        <h3 className="text-sm font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
           {course.title}
         </h3>
 
-        <p className="text-xs text-gray-400 mb-3">
-          {course.durationWeeks} Weeks
-        </p>
+        <span className="w-fit flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500 mb-3">
+          <PiSparkleFill className="text-indigo-400" />
+          {course.category.name}
+        </span>
 
         <div className="mt-auto flex items-center justify-between">
           <div>
@@ -110,43 +130,42 @@ function CoursesPage() {
   const [page, setPage] = useState(1);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  // Load filters
   useEffect(() => {
-    Promise.all([
-      api.get("/categories"),
-      api.get("/instructors"),
-    ]).then(([catRes, instRes]) => {
-      setCategories(catRes.data.data);
-      setInstructors(instRes.data.data);
-    });
+    Promise.all([api.get("/categories"), api.get("/instructors")]).then(
+      ([catRes, instRes]) => {
+        setCategories(catRes.data.data);
+        setInstructors(instRes.data.data);
+      },
+    );
   }, []);
 
-  // Load topics dynamically based on selected categories
   useEffect(() => {
     const params = new URLSearchParams();
-    selectedCategories.forEach((id) => params.append("categories[]", String(id)));
+    selectedCategories.forEach((id) =>
+      params.append("categories[]", String(id)),
+    );
     api.get(`/topics?${params.toString()}`).then((res) => {
       setTopics(res.data.data);
-      // Clear topics that no longer belong to selected categories
       if (selectedCategories.length > 0) {
         setSelectedTopics((prev) =>
-          prev.filter((tid) =>
-            res.data.data.some((t: Topic) => t.id === tid)
-          )
+          prev.filter((tid) => res.data.data.some((t: Topic) => t.id === tid)),
         );
       }
     });
   }, [selectedCategories]);
 
-  // Load courses
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("sort", sort);
-    selectedCategories.forEach((id) => params.append("categories[]", String(id)));
+    selectedCategories.forEach((id) =>
+      params.append("categories[]", String(id)),
+    );
     selectedTopics.forEach((id) => params.append("topics[]", String(id)));
-    selectedInstructors.forEach((id) => params.append("instructors[]", String(id)));
+    selectedInstructors.forEach((id) =>
+      params.append("instructors[]", String(id)),
+    );
 
     api
       .get(`/courses?${params.toString()}`)
@@ -161,21 +180,21 @@ function CoursesPage() {
   const toggleCategory = (id: number) => {
     setPage(1);
     setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
   };
 
   const toggleTopic = (id: number) => {
     setPage(1);
     setSelectedTopics((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
     );
   };
 
   const toggleInstructor = (id: number) => {
     setPage(1);
     setSelectedInstructors((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
@@ -187,12 +206,13 @@ function CoursesPage() {
   };
 
   const activeFilterCount =
-    selectedCategories.length + selectedTopics.length + selectedInstructors.length;
+    selectedCategories.length +
+    selectedTopics.length +
+    selectedInstructors.length;
 
   const currentSortLabel =
     SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Newest First";
 
-  // Pagination pages
   const getPages = () => {
     const pages = [];
     const total = meta.lastPage;
@@ -202,7 +222,11 @@ function CoursesPage() {
     } else {
       pages.push(1);
       if (current > 3) pages.push("...");
-      for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      for (
+        let i = Math.max(2, current - 1);
+        i <= Math.min(total - 1, current + 1);
+        i++
+      ) {
         pages.push(i);
       }
       if (current < total - 2) pages.push("...");
@@ -213,9 +237,10 @@ function CoursesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1920px] px-24 py-10">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
-        <Link to="/" className="hover:text-indigo-600">Home</Link>
+        <Link to="/" className="hover:text-indigo-600">
+          Home
+        </Link>
         <FiChevronRight className="text-xs" />
         <span className="text-indigo-600 font-medium">Browse</span>
       </div>
@@ -229,7 +254,8 @@ function CoursesPage() {
               onClick={clearAll}
               className="text-xs text-indigo-600 hover:underline"
             >
-              Clear All Filters {activeFilterCount > 0 && `· ${activeFilterCount}`}
+              Clear All Filters{" "}
+              {activeFilterCount > 0 && `· ${activeFilterCount}`}
             </button>
           </div>
 
@@ -243,12 +269,15 @@ function CoursesPage() {
                 <button
                   key={cat.id}
                   onClick={() => toggleCategory(cat.id)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
                     selectedCategories.includes(cat.id)
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      ? "border border-indigo-500 bg-indigo-50 text-indigo-600"
+                      : "border border-transparent bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
+                  {CATEGORY_ICONS[cat.icon] && (
+                    <span>{CATEGORY_ICONS[cat.icon]}</span>
+                  )}
                   {cat.name}
                 </button>
               ))}
@@ -257,18 +286,16 @@ function CoursesPage() {
 
           {/* Topics */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              Topics
-            </h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Topics</h3>
             <div className="flex flex-wrap gap-2">
               {topics.map((topic) => (
                 <button
                   key={topic.id}
                   onClick={() => toggleTopic(topic.id)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
                     selectedTopics.includes(topic.id)
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      ? "border border-indigo-500 bg-indigo-50 text-indigo-600"
+                      : "border border-transparent bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
                   {topic.name}
@@ -318,7 +345,6 @@ function CoursesPage() {
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          {/* Top bar */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-gray-500">
               Showing{" "}
@@ -326,7 +352,6 @@ function CoursesPage() {
               {meta.total === 1 ? "course" : "courses"}
             </p>
 
-            {/* Sort dropdown */}
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown((p) => !p)}
@@ -362,7 +387,6 @@ function CoursesPage() {
             </div>
           </div>
 
-          {/* Grid */}
           {loading ? (
             <div className="grid grid-cols-3 gap-6">
               {Array.from({ length: 9 }).map((_, i) => (
@@ -397,7 +421,6 @@ function CoursesPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {meta.lastPage > 1 && (
             <div className="mt-10 flex items-center justify-center gap-2">
               <button
@@ -425,7 +448,7 @@ function CoursesPage() {
                   >
                     {p}
                   </button>
-                )
+                ),
               )}
 
               <button

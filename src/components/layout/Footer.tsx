@@ -3,7 +3,7 @@ import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 
 function Footer() {
   return (
-    <footer className="mt-16 border-t border-gray-200 bg-[#f5f5f7]">
+    <footer className="border-t border-gray-200 bg-[#f5f5f5]">
       <div className="mx-auto w-full max-w-[1920px] px-24 py-14">
         <div className="flex justify-between gap-12">
           <div className="max-w-[320px]">

@@ -21,7 +21,7 @@ function Navbar() {
         <EnrolledSidebar onClose={() => setShowSidebar(false)} />
       )}
 
-      <header className="border-b border-gray-200 bg-white">
+      <header className="border-b border-gray-200 bg-[#f5f5f5]">
         <div className="mx-auto flex h-[84px] w-full max-w-[1920px] items-center justify-between px-24">
           <Link
             to="/"

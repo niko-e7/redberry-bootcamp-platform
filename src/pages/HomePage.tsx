@@ -125,12 +125,14 @@ function HeroSlider() {
 // Featured Course Card
 function FeaturedCourseCard({ course }: { course: Course }) {
   return (
-    <div className="flex flex-col rounded-2xl bg-white overflow-hidden shadow-sm border border-gray-100">
-      <img
-        src={course.image}
-        alt={course.title}
-        className="h-[220px] w-full object-cover"
-      />
+   <div className="flex flex-col rounded-2xl bg-white border border-gray-100 hover:border-gray-300 transition-colors">
+  <div className="p-3 pb-0">
+    <img
+      src={course.image}
+      alt={course.title}
+      className="h-[220px] w-full object-cover rounded-xl"
+    />
+  </div>
       <div className="flex flex-col flex-1 p-5">
         <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
           <span>
@@ -178,7 +180,7 @@ function InProgressCard({ enrollment }: { enrollment: Enrollment }) {
   const { course, progress } = enrollment;
 
   return (
-    <div className="flex gap-4 rounded-2xl bg-white border border-gray-100 p-4 shadow-sm">
+    <div className="flex gap-4 rounded-2xl bg-white border border-gray-100 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-gray-300 transition-all">
       <img
         src={course.image}
         alt={course.title}
