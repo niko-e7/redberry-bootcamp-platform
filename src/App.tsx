@@ -6,6 +6,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import LoginModal from "./components/modals/LoginModal";
 import RegisterModal from "./components/modals/RegisterModal";
+import EnrolledSidebar from "./components/EnrolledSidebar";
 
 function ModalController() {
   const { modalState } = useAuth();
@@ -14,11 +15,18 @@ function ModalController() {
   return null;
 }
 
+function SidebarController() {
+  const { showSidebar, closeSidebar } = useAuth();
+  if (!showSidebar) return null;
+  return <EnrolledSidebar onClose={closeSidebar} />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <ModalController />
+        <SidebarController />
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />

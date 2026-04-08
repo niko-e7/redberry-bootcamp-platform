@@ -13,8 +13,8 @@ interface ProfileForm {
 function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, updateUser } = useAuth();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    user?.avatar ?? null
-  );
+  user?.avatar ? `${user.avatar}?t=${Date.now()}` : null
+);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarError, setAvatarError] = useState("");
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});

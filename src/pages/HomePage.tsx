@@ -314,7 +314,7 @@ function FeaturedCoursesSection() {
 
 // Continue Learning Section
 function ContinueLearningSection() {
-  const { isAuthenticated, openLogin } = useAuth();
+  const { isAuthenticated, openLogin, openSidebar } = useAuth();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -340,7 +340,10 @@ function ContinueLearningSection() {
           <p className="text-sm text-gray-500 mt-1">Pick up where you left</p>
         </div>
         {isAuthenticated && enrollments.length > 0 && (
-          <button className="text-sm font-medium text-indigo-600 hover:underline">
+          <button
+            onClick={isAuthenticated ? openSidebar : openLogin}
+            className="text-sm font-medium text-indigo-600 hover:underline"
+          >
             See All
           </button>
         )}

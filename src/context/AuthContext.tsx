@@ -24,6 +24,9 @@ interface AuthContextType {
   openRegister: () => void;
   closeModal: () => void;
   modalState: "login" | "register" | null;
+  openSidebar: () => void;
+  showSidebar: boolean;
+  closeSidebar: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.getItem("token")
   );
   const [modalState, setModalState] = useState<"login" | "register" | null>(null);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Attach token to all requests
   useEffect(() => {
@@ -92,6 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const openLogin = () => setModalState("login");
   const openRegister = () => setModalState("register");
   const closeModal = () => setModalState(null);
+  const openSidebar = () => setShowSidebar(true);
+  const closeSidebar = () => setShowSidebar(false);
 
   return (
     <AuthContext.Provider
@@ -107,6 +113,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         openRegister,
         closeModal,
         modalState,
+        openSidebar,
+        showSidebar,
+        closeSidebar,
       }}
     >
       {children}
