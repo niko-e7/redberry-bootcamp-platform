@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { FiChevronRight, FiClock, FiCalendar, FiMapPin, FiMonitor, FiAlertTriangle } from "react-icons/fi";
+import {
+  FiChevronRight,
+  FiClock,
+  FiCalendar,
+  FiMapPin,
+  FiMonitor,
+  FiAlertTriangle,
+} from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import type { Course } from "../types/course";
 import ProfileModal from "../components/modals/ProfileModal";
 
-// Types
 interface WeeklySchedule {
   id: number;
   label: string;
@@ -52,7 +58,6 @@ interface CourseDetail extends Course {
   enrollment: Enrollment | null;
 }
 
-// Conflict Modal
 function ConflictModal({
   conflict,
   onCancel,
@@ -80,7 +85,9 @@ function ConflictModal({
             "{conflict.conflictingCourseName}"
           </span>{" "}
           with the same schedule:{" "}
-          <span className="font-semibold text-gray-700">{conflict.schedule}</span>
+          <span className="font-semibold text-gray-700">
+            {conflict.schedule}
+          </span>
         </p>
         <div className="flex gap-3">
           <button
@@ -101,7 +108,6 @@ function ConflictModal({
   );
 }
 
-// Success Modal
 function SuccessModal({
   courseName,
   onClose,
@@ -137,7 +143,6 @@ function SuccessModal({
   );
 }
 
-// Congrats Modal
 function CongratsModal({
   courseName,
   onClose,
@@ -217,7 +222,6 @@ function CongratsModal({
   );
 }
 
-// Main Page
 function CourseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, user, openLogin } = useAuth();
@@ -226,16 +230,20 @@ function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Schedule selection
   const [weeklySchedules, setWeeklySchedules] = useState<WeeklySchedule[]>([]);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [sessionTypes, setSessionTypes] = useState<SessionType[]>([]);
 
-  const [selectedWeekly, setSelectedWeekly] = useState<WeeklySchedule | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
-  const [selectedSession, setSelectedSession] = useState<SessionType | null>(null);
+  const [selectedWeekly, setSelectedWeekly] = useState<WeeklySchedule | null>(
+    null,
+  );
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(
+    null,
+  );
+  const [selectedSession, setSelectedSession] = useState<SessionType | null>(
+    null,
+  );
 
-  // Modals
   const [conflictData, setConflictData] = useState<{
     conflictingCourseName: string;
     schedule: string;
@@ -250,7 +258,30 @@ function CourseDetailPage() {
   const [completing, setCompleting] = useState(false);
   const [enrollError, setEnrollError] = useState("");
 
-  // Load course
+  const formatWeeklyLabel = (label: string) => {
+    return label
+      .replace(/Monday/gi, "Mon")
+      .replace(/Tuesday/gi, "Tue")
+      .replace(/Wednesday/gi, "Wed")
+      .replace(/Thursday/gi, "Thu")
+      .replace(/Friday/gi, "Fri")
+      .replace(/Saturday/gi, "Sat")
+      .replace(/Sunday/gi, "Sun");
+  };
+
+  const formatTimeValue = (raw: string) => {
+    const [hStr, mStr] = raw.split(":");
+    const hours24 = Number(hStr);
+    const minutes = Number(mStr ?? "0");
+    const period = hours24 >= 12 ? "PM" : "AM";
+    const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+    return `${hours12}:${String(minutes).padStart(2, "0")} ${period}`;
+  };
+
+  const getTimeSlotTitle = (slot: TimeSlot) => {
+    return slot.label.split("(")[0].trim();
+  };
+
   useEffect(() => {
     setLoading(true);
     api
@@ -260,7 +291,6 @@ function CourseDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Load weekly schedules
   useEffect(() => {
     if (!course || course.enrollment) return;
     api
@@ -268,7 +298,6 @@ function CourseDetailPage() {
       .then((res) => setWeeklySchedules(res.data.data));
   }, [course]);
 
-  // Load time slots when weekly selected
   useEffect(() => {
     if (!selectedWeekly) return;
     setSelectedTimeSlot(null);
@@ -280,24 +309,26 @@ function CourseDetailPage() {
       .then((res) => setTimeSlots(res.data.data));
   }, [selectedWeekly]);
 
-  // Load session types when time slot selected
   useEffect(() => {
     if (!selectedWeekly || !selectedTimeSlot) return;
     setSelectedSession(null);
     setSessionTypes([]);
     api
       .get(
-        `/courses/${id}/session-types?weekly_schedule_id=${selectedWeekly.id}&time_slot_id=${selectedTimeSlot.id}`
+        `/courses/${id}/session-types?weekly_schedule_id=${selectedWeekly.id}&time_slot_id=${selectedTimeSlot.id}`,
       )
       .then((res) => setSessionTypes(res.data.data));
   }, [selectedTimeSlot]);
 
- const totalPrice = course
-  ? Number(course.basePrice) + Number(selectedSession?.priceModifier ?? 0)
-  : 0;
+  const totalPrice = course
+    ? Number(course.basePrice) + Number(selectedSession?.priceModifier ?? 0)
+    : 0;
 
   const handleEnroll = async (force = false) => {
-    if (!isAuthenticated) { openLogin(); return; }
+    if (!isAuthenticated) {
+      openLogin();
+      return;
+    }
     if (!user?.profileComplete) {
       setEnrollError("Please complete your profile to enroll in courses.");
       return;
@@ -347,7 +378,6 @@ function CourseDetailPage() {
       setCourse(res.data.data);
       setShowCongrats(true);
     } catch {
-      // silently fail
     } finally {
       setCompleting(false);
     }
@@ -382,11 +412,18 @@ function CourseDetailPage() {
   if (!course) return null;
 
   const enrollment = course.enrollment;
+  const courseRating =
+    course.reviews?.length > 0
+      ? Math.round(
+          (course.reviews.reduce((sum, r) => sum + r.rating, 0) /
+            course.reviews.length) *
+            10,
+        ) / 10
+      : null;
   const isCompleted = enrollment?.progress === 100;
 
   return (
     <div className="mx-auto w-full max-w-[1920px] px-24 py-10">
-      {/* Modals */}
       {conflictData && (
         <ConflictModal
           conflict={conflictData}
@@ -413,17 +450,21 @@ function CourseDetailPage() {
       )}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
-        <Link to="/" className="hover:text-indigo-600">Home</Link>
+        <Link to="/" className="hover:text-indigo-600">
+          Home
+        </Link>
         <FiChevronRight className="text-xs" />
-        <Link to="/courses" className="hover:text-indigo-600">Browse</Link>
+        <Link to="/courses" className="hover:text-indigo-600">
+          Browse
+        </Link>
         <FiChevronRight className="text-xs" />
-        <span className="text-indigo-600 font-medium">{course.category.name}</span>
+        <span className="text-indigo-600 font-medium">
+          {course.category.name}
+        </span>
       </div>
 
       <div className="flex gap-10">
-        {/* Left — course info */}
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
             {course.title}
@@ -436,44 +477,45 @@ function CourseDetailPage() {
             style={{ maxHeight: "420px" }}
           />
 
-          {/* Meta */}
-          <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-            <span className="flex items-center gap-1.5">
-              <FiCalendar className="text-gray-400" />
-              {course.durationWeeks} Weeks
-            </span>
-            <span className="flex items-center gap-1.5">
-              <FiClock className="text-gray-400" />
-              {course.durationWeeks * 8} Hours
-            </span>
-            {course.avgRating ? (
+          <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+            <div className="flex items-center gap-6">
               <span className="flex items-center gap-1.5">
-                <FaStar className="text-amber-400" />
-                {course.avgRating}
+                <FiCalendar className="text-gray-400" />
+                {course.durationWeeks} Weeks
               </span>
-            ) : null}
-            <span className="flex items-center gap-1.5 text-indigo-500">
-              {"</>"}  {course.category.name}
-            </span>
+              <span className="flex items-center gap-1.5">
+                <FiClock className="text-gray-400" />
+                {course.durationWeeks * 8} Hours
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              {courseRating ? (
+                <span className="flex items-center gap-1.5">
+                  <FaStar style={{ color: "#f4a316" }} />
+                  <span style={{ color: "#525252" }}>{courseRating}</span>
+                </span>
+              ) : null}
+              <span className="flex items-center gap-1.5 text-gray-500 bg-white rounded-lg px-3 py-1">
+                {"</>"} {course.category.name}
+              </span>
+            </div>
           </div>
 
-          {/* Instructor */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 bg-white rounded-lg px-3 py-1.5 w-fit">
             {course.instructor.avatar ? (
               <img
                 src={course.instructor.avatar}
                 alt={course.instructor.name}
-                className="h-9 w-9 rounded-full object-cover"
+                className="h-7 w-7 rounded-md object-cover"
               />
             ) : (
-              <div className="h-9 w-9 rounded-full bg-indigo-100" />
+              <div className="h-7 w-7 rounded-md bg-indigo-100" />
             )}
             <span className="text-sm font-medium text-gray-700">
               {course.instructor.name}
             </span>
           </div>
 
-          {/* Description */}
           <h2 className="text-lg font-bold text-gray-900 mb-3">
             Course Description
           </h2>
@@ -482,46 +524,45 @@ function CourseDetailPage() {
           </p>
         </div>
 
-        {/* Right — schedule / enrollment panel */}
-        <div className="w-[340px] shrink-0">
+        <div className="w-[340px] shrink-0 mt-15">
           {enrollment ? (
-            // Enrolled state
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-              <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                Enrolled
-              </span>
+            <div className="space-y-4 pt-1">
+              <div>
+                <span className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+                  Enrolled
+                </span>
 
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <FiCalendar className="text-gray-400 shrink-0" />
-                  {enrollment.schedule.weeklySchedule.label}
-                </div>
-                <div className="flex items-center gap-2">
-                  <FiClock className="text-gray-400 shrink-0" />
-                  {enrollment.schedule.timeSlot.label}
-                </div>
-                <div className="flex items-center gap-2">
-                  <FiMonitor className="text-gray-400 shrink-0" />
-                  <span className="capitalize">
-                    {enrollment.schedule.sessionType.name}
-                  </span>
-                </div>
-                {enrollment.schedule.location && (
+                <div className="mt-4 space-y-2.5 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
-                    <FiMapPin className="text-gray-400 shrink-0" />
-                    {enrollment.schedule.location}
+                    <FiCalendar className="text-gray-400 shrink-0" />
+                    {enrollment.schedule.weeklySchedule.label}
                   </div>
-                )}
+                  <div className="flex items-center gap-2">
+                    <FiClock className="text-gray-400 shrink-0" />
+                    {enrollment.schedule.timeSlot.label}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiMonitor className="text-gray-400 shrink-0" />
+                    <span className="capitalize">
+                      {enrollment.schedule.sessionType.name}
+                    </span>
+                  </div>
+                  {enrollment.schedule.location && (
+                    <div className="flex items-center gap-2">
+                      <FiMapPin className="text-gray-400 shrink-0" />
+                      {enrollment.schedule.location}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Progress */}
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-2">
+                <p className="text-sm font-semibold text-gray-700 mb-2.5">
                   {enrollment.progress}% Complete
                 </p>
-                <div className="h-2 w-full rounded-full bg-gray-100">
+                <div className="h-2.5 w-full rounded-full bg-indigo-100">
                   <div
-                    className="h-2 rounded-full bg-indigo-600 transition-all"
+                    className="h-2.5 rounded-full bg-indigo-600 transition-all"
                     style={{ width: `${enrollment.progress}%` }}
                   />
                 </div>
@@ -556,12 +597,10 @@ function CourseDetailPage() {
               )}
             </div>
           ) : (
-            // Not enrolled — schedule selection
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-5">
-              {/* Weekly Schedule */}
+            <div className="space-y-5 pt-1">
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[11px] font-bold text-white">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-indigo-300 text-[11px] font-bold text-indigo-600">
                     1
                   </span>
                   <h3 className="text-sm font-semibold text-indigo-600">
@@ -573,22 +612,21 @@ function CourseDetailPage() {
                     <button
                       key={ws.id}
                       onClick={() => setSelectedWeekly(ws)}
-                      className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                      className={`rounded-lg border px-4 py-6 text-sm font-medium transition-colors ${
                         selectedWeekly?.id === ws.id
-                          ? "border-indigo-600 bg-indigo-600 text-white"
-                          : "border-gray-200 text-gray-600 hover:border-indigo-400"
+                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                          : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
                       }`}
                     >
-                      {ws.label}
+                      {formatWeeklyLabel(ws.label)}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Time Slot */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[11px] font-bold text-gray-600">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-gray-300 text-[11px] font-bold text-gray-500">
                     2
                   </span>
                   <h3 className="text-sm font-semibold text-gray-500">
@@ -601,13 +639,19 @@ function CourseDetailPage() {
                       <button
                         key={ts.id}
                         onClick={() => setSelectedTimeSlot(ts)}
-                        className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                        className={`min-w-[170px] rounded-xl border px-4 py-3 text-left transition-colors ${
                           selectedTimeSlot?.id === ts.id
-                            ? "border-indigo-600 bg-indigo-600 text-white"
-                            : "border-gray-200 text-gray-600 hover:border-indigo-400"
+                            ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
                         }`}
                       >
-                        {ts.label}
+                        <span className="block text-sm font-semibold leading-tight">
+                          {getTimeSlotTitle(ts)}
+                        </span>
+                        <span className="mt-1 block text-xs text-gray-500">
+                          {formatTimeValue(ts.startTime)} -{" "}
+                          {formatTimeValue(ts.endTime)}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -620,10 +664,9 @@ function CourseDetailPage() {
                 )}
               </div>
 
-              {/* Session Type */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[11px] font-bold text-gray-600">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-gray-300 text-[11px] font-bold text-gray-500">
                     3
                   </span>
                   <h3 className="text-sm font-semibold text-gray-500">
@@ -634,7 +677,8 @@ function CourseDetailPage() {
                   <div className="space-y-2">
                     {sessionTypes.map((st) => {
                       const isFull = st.availableSeats === 0;
-                      const isLow = st.availableSeats > 0 && st.availableSeats < 5;
+                      const isLow =
+                        st.availableSeats > 0 && st.availableSeats < 5;
                       return (
                         <button
                           key={st.id}
@@ -644,8 +688,8 @@ function CourseDetailPage() {
                             isFull
                               ? "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
                               : selectedSession?.id === st.id
-                              ? "border-indigo-600 bg-indigo-50"
-                              : "border-gray-200 hover:border-indigo-400"
+                                ? "border-indigo-500 bg-indigo-50 text-indigo-900"
+                                : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50"
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
@@ -690,8 +734,7 @@ function CourseDetailPage() {
                 )}
               </div>
 
-              {/* Price summary */}
-              <div className="rounded-xl bg-gray-50 p-4 space-y-2">
+              <div className="rounded-2xl border border-gray-100 bg-white p-5 space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-bold text-gray-900">Total Price</span>
                   <span className="text-xl font-bold text-gray-900">
@@ -704,18 +747,24 @@ function CourseDetailPage() {
                 </div>
                 <div className="flex items-center justify-between text-xs text-gray-400">
                   <span>Session Type</span>
-                  <span>
-                    + ${selectedSession?.priceModifier ?? 0}
-                  </span>
+                  <span>+ ${selectedSession?.priceModifier ?? 0}</span>
                 </div>
+
+                <button
+                  onClick={() => handleEnroll(false)}
+                  disabled={enrolling || (isAuthenticated && !selectedSession)}
+                  className="mt-3 w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                >
+                  {enrolling ? "Enrolling..." : "Enroll Now"}
+                </button>
               </div>
 
-              {/* Error */}
               {enrollError && (
-                <p className="text-xs text-red-500 text-center">{enrollError}</p>
+                <p className="text-xs text-red-500 text-center">
+                  {enrollError}
+                </p>
               )}
 
-              {/* Profile incomplete warning */}
               {isAuthenticated && !user?.profileComplete && (
                 <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3">
                   <div>
@@ -734,15 +783,6 @@ function CourseDetailPage() {
                   </button>
                 </div>
               )}
-
-              {/* Enroll button */}
-              <button
-                onClick={() => handleEnroll(false)}
-                disabled={enrolling || (isAuthenticated && !selectedSession)}
-                className="w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-              >
-                {enrolling ? "Enrolling..." : "Enroll Now"}
-              </button>
             </div>
           )}
         </div>

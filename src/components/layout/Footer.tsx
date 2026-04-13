@@ -1,8 +1,17 @@
+import { useState } from "react";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaRocket } from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import ProfileModal from "../modals/ProfileModal";
 
 function Footer() {
+  const navigate = useNavigate();
+  const { openSidebar } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
   return (
+    <>
+    {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     <footer className="border-t border-gray-200 bg-[#f5f5f5]">
       <div className="mx-auto w-full max-w-[1920px] px-24 py-14">
         <div className="flex justify-between gap-12">
@@ -33,15 +42,15 @@ function Footer() {
             <div>
               <h4 className="mb-4 text-lg font-semibold text-indigo-950">Explore</h4>
               <ul className="space-y-2 text-base text-gray-500">
-                <li>Enrolled Courses</li>
-                <li>Browse Courses</li>
+                <li className="cursor-pointer hover:text-indigo-600" onClick={openSidebar}>Enrolled Courses</li>
+                <li className="cursor-pointer hover:text-indigo-600" onClick={() => navigate("/courses")}>Browse Courses</li>
               </ul>
             </div>
 
             <div>
               <h4 className="mb-4 text-lg font-semibold text-indigo-950">Account</h4>
               <ul className="space-y-2 text-base text-gray-500">
-                <li>My Profile</li>
+                <li className="cursor-pointer hover:text-indigo-600" onClick={() => setShowProfile(true)}>My Profile</li>
               </ul>
             </div>
 
@@ -78,6 +87,7 @@ function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }
 

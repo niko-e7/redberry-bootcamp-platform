@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiChevronDown,
+  FiX,
+} from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
-import { PiSparkleFill } from "react-icons/pi";
 import api from "../services/api";
 import type { Course } from "../types/course";
 import {
@@ -54,7 +58,6 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   "data-science": <FiDatabase className="text-xs" />,
 };
 
-// Course Card
 function CourseCard({ course }: { course: Course }) {
   return (
     <Link
@@ -70,37 +73,35 @@ function CourseCard({ course }: { course: Course }) {
       </div>
       <div className="flex flex-col flex-1 p-4">
         <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            {course.instructor.name}
+          <span className="text-xs text-gray-400">
+            {course.instructor.name} <span className="mx-1">|</span>{" "}
+            {course.durationWeeks} Weeks
           </span>
-          <div className="flex items-center gap-2 text-gray-400">
-            <span>{course.durationWeeks} Weeks</span>
-            {course.avgRating ? (
-              <span className="flex items-center gap-1 text-amber-400 font-medium">
-                <FaStar className="text-xs" />
-                {course.avgRating}
-              </span>
-            ) : null}
-          </div>
+          {course.avgRating ? (
+            <span className="flex items-center gap-1 font-medium shrink-0">
+              <FaStar className="text-xs" style={{ color: "#f4a316" }} />
+              <span style={{ color: "#525252" }}>{course.avgRating}</span>
+            </span>
+          ) : null}
         </div>
 
         <h3 className="text-sm font-bold text-gray-900 leading-snug mb-2 line-clamp-2">
           {course.title}
         </h3>
 
-        <span className="w-fit flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500 mb-3">
-          <PiSparkleFill className="text-indigo-400" />
+        <span className="w-fit flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1 text-xs text-gray-500 mb-3">
+          {CATEGORY_ICONS[course.category.icon] ?? null}
           {course.category.name}
         </span>
 
-        <div className="mt-auto flex items-center justify-between">
-          <div>
-            <span className="text-xs text-gray-400">Starting from </span>
+        <div className="mt-auto flex items-center justify-between gap-4">
+          <div className="flex flex-1 flex-col justify-center">
+            <span className="text-xs text-gray-400">Starting from</span>
             <span className="text-lg font-bold text-gray-900">
               ${Math.round(course.basePrice)}
             </span>
           </div>
-          <span className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white">
+          <span className="rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white">
             Details
           </span>
         </div>
@@ -109,7 +110,6 @@ function CourseCard({ course }: { course: Course }) {
   );
 }
 
-// Courses Page
 function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -246,20 +246,18 @@ function CoursesPage() {
       </div>
 
       <div className="flex gap-8">
-        {/* Sidebar */}
         <aside className="w-[260px] shrink-0">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-gray-900">Filters</h2>
             <button
               onClick={clearAll}
-              className="text-xs text-indigo-600 hover:underline"
+              className="text-xs text-gray-400 hover:text-indigo-600 transition-colors duration-200"
             >
               Clear All Filters{" "}
               {activeFilterCount > 0 && `· ${activeFilterCount}`}
             </button>
           </div>
 
-          {/* Categories */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               Categories
@@ -272,7 +270,7 @@ function CoursesPage() {
                   className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
                     selectedCategories.includes(cat.id)
                       ? "border border-indigo-500 bg-indigo-50 text-indigo-600"
-                      : "border border-transparent bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      : "border border-gray-100 bg-white text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
                   {CATEGORY_ICONS[cat.icon] && (
@@ -284,7 +282,6 @@ function CoursesPage() {
             </div>
           </div>
 
-          {/* Topics */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Topics</h3>
             <div className="flex flex-wrap gap-2">
@@ -295,7 +292,7 @@ function CoursesPage() {
                   className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
                     selectedTopics.includes(topic.id)
                       ? "border border-indigo-500 bg-indigo-50 text-indigo-600"
-                      : "border border-transparent bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      : "border border-gray-100 bg-white text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
                   {topic.name}
@@ -311,30 +308,29 @@ function CoursesPage() {
             </div>
           </div>
 
-          {/* Instructors */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               Instructor
             </h3>
-            <div className="space-y-2">
+            <div className="flex flex-col items-start gap-2">
               {instructors.map((inst) => (
                 <button
                   key={inst.id}
                   onClick={() => toggleInstructor(inst.id)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${
+                  className={`inline-flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm transition-colors ${
                     selectedInstructors.includes(inst.id)
-                      ? "bg-indigo-50 text-indigo-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
+                      ? "border border-indigo-500 bg-indigo-50 text-indigo-600 font-medium"
+                      : "border border-gray-100 bg-white text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                   }`}
                 >
                   {inst.avatar ? (
                     <img
                       src={inst.avatar}
                       alt={inst.name}
-                      className="h-7 w-7 rounded-full object-cover shrink-0"
+                      className="h-7 w-7 rounded-md object-cover shrink-0"
                     />
                   ) : (
-                    <div className="h-7 w-7 rounded-full bg-indigo-100 shrink-0" />
+                    <div className="h-7 w-7 rounded-md bg-indigo-100 shrink-0" />
                   )}
                   <span className="truncate">{inst.name}</span>
                 </button>
@@ -343,7 +339,6 @@ function CoursesPage() {
           </div>
         </aside>
 
-        {/* Main content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-gray-500">
@@ -355,17 +350,20 @@ function CoursesPage() {
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown((p) => !p)}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-indigo-400 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm transition-colors duration-200"
               >
-                Sort By: <span className="font-medium">{currentSortLabel}</span>
-                <FiChevronRight
-                  className={`transition-transform ${showSortDropdown ? "rotate-90" : ""}`}
+                <span className="text-gray-400">Sort By:</span>
+                <span className="font-medium text-indigo-600">
+                  {currentSortLabel}
+                </span>
+                <FiChevronDown
+                  className={`ml-auto text-gray-400 transition-transform duration-200 ${showSortDropdown ? "rotate-180" : ""}`}
                 />
               </button>
 
               {showSortDropdown && (
-                <div className="absolute right-0 top-full mt-2 z-20 w-48 rounded-xl border border-gray-100 bg-white shadow-lg py-1">
-                  {SORT_OPTIONS.map((opt) => (
+                <div className="absolute right-0 top-full mt-1 z-20 w-full rounded-lg border border-gray-100 bg-white shadow-md">
+                  {SORT_OPTIONS.map((opt, i) => (
                     <button
                       key={opt.value}
                       onClick={() => {
@@ -373,10 +371,12 @@ function CoursesPage() {
                         setPage(1);
                         setShowSortDropdown(false);
                       }}
-                      className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                      className={`w-full px-4 py-2 text-left text-sm transition-colors duration-150 ${
+                        i === 0 ? "rounded-t-lg" : ""
+                      } ${i === SORT_OPTIONS.length - 1 ? "rounded-b-lg" : ""} ${
                         sort === opt.value
                           ? "bg-indigo-50 text-indigo-600 font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
+                          : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                       }`}
                     >
                       {opt.label}

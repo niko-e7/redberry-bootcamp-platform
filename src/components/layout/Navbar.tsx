@@ -29,7 +29,7 @@ function Navbar() {
           <nav className="flex items-center gap-6">
             <Link
               to="/courses"
-              className="flex items-center gap-2 text-sm font-medium text-indigo-600"
+              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors duration-200"
             >
               <PiSparkleFill className="text-base" />
               Browse Courses
@@ -65,7 +65,7 @@ function Navbar() {
                   )}
 
                   {showProfileDropdown && (
-                    <div className="absolute right-0 top-full mt-2 z-20 w-44 rounded-xl border border-gray-100 bg-white shadow-lg py-1">
+                    <div className="absolute right-0 top-full mt-2 z-20 w-44 rounded-xl border border-gray-100 bg-white shadow-lg overflow-hidden">
                       <button
                         onClick={() => {
                           setShowProfileDropdown(false);
