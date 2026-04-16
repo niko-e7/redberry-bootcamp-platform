@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   FiChevronRight,
+  FiChevronDown,
   FiClock,
   FiCalendar,
   FiMapPin,
@@ -234,9 +235,21 @@ function CourseDetailPage() {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [sessionTypes, setSessionTypes] = useState<SessionType[]>([]);
 
-  const [selectedWeekly, setSelectedWeekly] = useState<WeeklySchedule | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(null);
-  const [selectedSession, setSelectedSession] = useState<SessionType | null>(null);
+  const [selectedWeekly, setSelectedWeekly] = useState<WeeklySchedule | null>(
+    null,
+  );
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot | null>(
+    null,
+  );
+  const [selectedSession, setSelectedSession] = useState<SessionType | null>(
+    null,
+  );
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    weekly: true,
+    timeslot: false,
+    session: false,
+  });
 
   const [conflictData, setConflictData] = useState<{
     conflictingCourseName: string;
@@ -253,6 +266,10 @@ function CourseDetailPage() {
   const [retaking, setRetaking] = useState(false);
   const [enrollError, setEnrollError] = useState("");
 
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const formatWeeklyLabel = (label: string) => {
     return label
       .replace(/Monday/gi, "Mon")
@@ -261,7 +278,8 @@ function CourseDetailPage() {
       .replace(/Thursday/gi, "Thu")
       .replace(/Friday/gi, "Fri")
       .replace(/Saturday/gi, "Sat")
-      .replace(/Sunday/gi, "Sun");
+      .replace(/Sunday/gi, "Sun")
+      .replace(/Weekend Only/gi, "Weekend");
   };
 
   const formatTimeValue = (raw: string) => {
@@ -277,7 +295,16 @@ function CourseDetailPage() {
     return slot.label.split("(")[0].trim();
   };
 
-  // Refetch course whenever auth state or id changes
+  const handleWeeklySelect = (ws: WeeklySchedule) => {
+    setSelectedWeekly(ws);
+    setOpenSections((prev) => ({ ...prev, timeslot: true }));
+  };
+
+  const handleTimeSlotSelect = (ts: TimeSlot) => {
+    setSelectedTimeSlot(ts);
+    setOpenSections((prev) => ({ ...prev, session: true }));
+  };
+
   useEffect(() => {
     setLoading(true);
     api
@@ -380,17 +407,17 @@ function CourseDetailPage() {
   };
 
   const handleRetake = async () => {
-  if (!course?.enrollment) return;
-  setRetaking(true);
-  try {
-    await api.delete(`/enrollments/${course.enrollment.id}`);
-    const res = await api.get(`/courses/${id}`);
-    setCourse(res.data.data);
-  } catch {
-  } finally {
-    setRetaking(false);
-  }
-};
+    if (!course?.enrollment) return;
+    setRetaking(true);
+    try {
+      await api.delete(`/enrollments/${course.enrollment.id}`);
+      const res = await api.get(`/courses/${id}`);
+      setCourse(res.data.data);
+    } catch {
+    } finally {
+      setRetaking(false);
+    }
+  };
 
   const handleRate = async (rating: number) => {
     try {
@@ -486,11 +513,15 @@ function CourseDetailPage() {
             style={{ maxHeight: "420px" }}
           />
 
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+          <div className="flex items-center justify-between text-sm text-[#525252] mb-4">
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-1.5">
-                <FiCalendar className="text-gray-400" />
+                <FiCalendar className="text-[#525252]" />
                 {course.durationWeeks} Weeks
+              </span>
+              <span className="flex items-center gap-1.5">
+                <FiClock className="text-[#525252]" />
+                {course.durationWeeks * 8} Hours
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -521,44 +552,46 @@ function CourseDetailPage() {
             </span>
           </div>
 
-          <h2 className="text-lg font-bold text-gray-900 mb-3">
+          <h2 className="text-lg font-bold text-[#8a8a8a] mb-3">
             Course Description
           </h2>
-          <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-line">
+          <p className="text-sm text-[##525252] leading-relaxed whitespace-pre-line">
             {course.description}
           </p>
         </div>
 
-        <div className="w-[340px] shrink-0 mt-15">
+        <div className="w-[400px] shrink-0 mt-15">
           {enrollment ? (
             <div className="space-y-4 pt-1">
               <div>
-                <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                  isCompleted
-                    ? "bg-green-50 text-green-600"
-                    : "bg-indigo-50 text-indigo-600"
-                }`}>
+                <span
+                  className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                    isCompleted
+                      ? "bg-green-50 text-green-600"
+                      : "bg-indigo-50 text-indigo-600"
+                  }`}
+                >
                   {isCompleted ? "Completed" : "Enrolled"}
                 </span>
 
-                <div className="mt-4 space-y-2.5 text-sm text-gray-600">
+                <div className="mt-4 space-y-2.5 text-sm text-[#525252]">
                   <div className="flex items-center gap-2">
-                    <FiCalendar className="text-gray-400 shrink-0" />
+                    <FiCalendar className="text-[#525252] shrink-0" />
                     {enrollment.schedule.weeklySchedule.label}
                   </div>
                   <div className="flex items-center gap-2">
-                    <FiClock className="text-gray-400 shrink-0" />
+                    <FiClock className="text-[#525252] shrink-0" />
                     {enrollment.schedule.timeSlot.label}
                   </div>
                   <div className="flex items-center gap-2">
-                    <FiMonitor className="text-gray-400 shrink-0" />
+                    <FiMonitor className="text-[#525252] shrink-0" />
                     <span className="capitalize">
                       {enrollment.schedule.sessionType.name}
                     </span>
                   </div>
                   {enrollment.schedule.location && (
                     <div className="flex items-center gap-2">
-                      <FiMapPin className="text-gray-400 shrink-0" />
+                      <FiMapPin className="text-[#525252] shrink-0" />
                       {enrollment.schedule.location}
                     </div>
                   )}
@@ -614,150 +647,208 @@ function CourseDetailPage() {
             </div>
           ) : (
             <div className="space-y-5 pt-1">
+              {/* Weekly Schedule */}
               <div>
-                <div className="flex items-center gap-2 mb-3.5">
-                  <span className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
-                    selectedWeekly
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-600"
-                      : "border-indigo-300 text-indigo-600"
-                  }`}>
-                    1
-                  </span>
-                  <h3 className="text-sm font-semibold text-indigo-600">
-                    Weekly Schedule
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {weeklySchedules.map((ws) => (
-                    <button
-                      key={ws.id}
-                      onClick={() => setSelectedWeekly(ws)}
-                      className={`rounded-lg border px-4 py-6 text-sm font-medium transition-colors ${
-                        selectedWeekly?.id === ws.id
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+                <button
+                  onClick={() => toggleSection("weekly")}
+                  className="flex items-center justify-between w-full mb-3.5"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
+                        selectedWeekly ? "bg-indigo-50" : ""
                       }`}
+                      style={{ borderColor: "#130e67", color: "#130e67" }}
                     >
-                      {formatWeeklyLabel(ws.label)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-3.5">
-                  <span className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
-                    selectedTimeSlot
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-600"
-                      : "border-gray-300 text-gray-500"
-                  }`}>
-                    2
-                  </span>
-                  <h3 className={`text-sm font-semibold ${selectedTimeSlot ? "text-indigo-600" : "text-gray-500"}`}>
-                    Time Slot
-                  </h3>
-                </div>
-                {timeSlots.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {timeSlots.map((ts) => (
+                      1
+                    </span>
+                    <h3
+                      className="text-sm font-semibold"
+                      style={{ color: "#130e67" }}
+                    >
+                      Weekly Schedule
+                    </h3>
+                  </div>
+                  <FiChevronDown
+                    className={`text-gray-400 transition-transform duration-200 ${openSections.weekly ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openSections.weekly && (
+                  <div className="flex gap-2">
+                    {weeklySchedules.map((ws) => (
                       <button
-                        key={ts.id}
-                        onClick={() => setSelectedTimeSlot(ts)}
-                        className={`min-w-[170px] rounded-xl border px-4 py-3 text-left transition-colors ${
-                          selectedTimeSlot?.id === ts.id
+                        key={ws.id}
+                        onClick={() => handleWeeklySelect(ws)}
+                        className={`flex-1 text-center rounded-lg border py-6 text-sm font-medium transition-colors ${
+                          selectedWeekly?.id === ws.id
                             ? "border-indigo-500 bg-indigo-50 text-indigo-700"
                             : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
                         }`}
                       >
-                        <span className="block text-sm font-semibold leading-tight">
-                          {getTimeSlotTitle(ts)}
-                        </span>
-                        <span className="mt-1 block text-xs text-gray-500">
-                          {formatTimeValue(ts.startTime)} -{" "}
-                          {formatTimeValue(ts.endTime)}
-                        </span>
+                        {formatWeeklyLabel(ws.label)}
                       </button>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-xs text-gray-400">
-                    {selectedWeekly
-                      ? "No time slots available"
-                      : "Select a weekly schedule first"}
-                  </p>
                 )}
               </div>
 
+              {/* Time Slot */}
               <div>
-                <div className="flex items-center gap-2 mb-3.5">
-                  <span className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
-                    selectedSession
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-600"
-                      : "border-gray-300 text-gray-500"
-                  }`}>
-                    3
-                  </span>
-                  <h3 className={`text-sm font-semibold ${selectedSession ? "text-indigo-600" : "text-gray-500"}`}>
-                    Session Type
-                  </h3>
-                </div>
-                {sessionTypes.length > 0 ? (
-                  <div className="space-y-2">
-                    {sessionTypes.map((st) => {
-                      const isFull = st.availableSeats === 0;
-                      const isLow = st.availableSeats > 0 && st.availableSeats < 5;
-                      return (
+                <button
+                  onClick={() => selectedWeekly && toggleSection("timeslot")}
+                  className={`flex items-center justify-between w-full mb-3.5 ${!selectedWeekly ? "cursor-not-allowed opacity-60" : ""}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
+                        selectedTimeSlot
+                          ? "bg-indigo-50"
+                          : "border-gray-300 text-gray-500"
+                      }`}
+                      style={
+                        selectedTimeSlot
+                          ? { borderColor: "#130e67", color: "#130e67" }
+                          : {}
+                      }
+                    >
+                      2
+                    </span>
+                    <h3
+                      className={`text-sm font-semibold ${selectedTimeSlot ? "" : "text-gray-500"}`}
+                      style={selectedTimeSlot ? { color: "#130e67" } : {}}
+                    >
+                      Time Slot
+                    </h3>
+                  </div>
+                  <FiChevronDown
+                    className={`text-gray-400 transition-transform duration-200 ${openSections.timeslot ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openSections.timeslot && (
+                  <div className="flex flex-wrap gap-2">
+                    {timeSlots.length > 0 ? (
+                      timeSlots.map((ts) => (
                         <button
-                          key={st.id}
-                          disabled={isFull}
-                          onClick={() => !isFull && setSelectedSession(st)}
-                          className={`w-full rounded-xl border p-3 text-left transition-colors ${
-                            isFull
-                              ? "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
-                              : selectedSession?.id === st.id
-                                ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-                                : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50"
+                          key={ts.id}
+                          onClick={() => handleTimeSlotSelect(ts)}
+                          className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                            selectedTimeSlot?.id === ts.id
+                              ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                              : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
                           }`}
                         >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-semibold capitalize text-gray-800">
-                              {st.name}
-                            </span>
-                            <span className="text-sm font-semibold text-indigo-600">
-                              {st.priceModifier > 0
-                                ? `+$${st.priceModifier}`
-                                : "Included"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-gray-400">
-                            {isFull ? (
-                              <span className="text-red-500 font-medium">
-                                Fully Booked
-                              </span>
-                            ) : isLow ? (
-                              <span className="text-amber-500 font-medium">
-                                Only {st.availableSeats} seats left!
-                              </span>
-                            ) : (
-                              <span>{st.availableSeats} seats available</span>
-                            )}
-                            {st.location && (
-                              <span className="flex items-center gap-1">
-                                <FiMapPin className="text-xs" />
-                                {st.location}
-                              </span>
-                            )}
-                          </div>
+                          <span className="block text-sm font-semibold leading-tight">
+                            {getTimeSlotTitle(ts)}
+                          </span>
+                          <span className="mt-1 block text-xs text-gray-500">
+                            {formatTimeValue(ts.startTime)} -{" "}
+                            {formatTimeValue(ts.endTime)}
+                          </span>
                         </button>
-                      );
-                    })}
+                      ))
+                    ) : (
+                      <p className="text-xs text-gray-400">
+                        {selectedWeekly
+                          ? "No time slots available"
+                          : "Select a weekly schedule first"}
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-xs text-gray-400">
-                    {selectedTimeSlot
-                      ? "No session types available"
-                      : "Select a time slot first"}
-                  </p>
+                )}
+              </div>
+
+              {/* Session Type */}
+              <div>
+                <button
+                  onClick={() => selectedTimeSlot && toggleSection("session")}
+                  className={`flex items-center justify-between w-full mb-3.5 ${!selectedTimeSlot ? "cursor-not-allowed opacity-60" : ""}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-bold ${
+                        selectedSession
+                          ? "bg-indigo-50"
+                          : "border-gray-300 text-gray-500"
+                      }`}
+                      style={
+                        selectedSession
+                          ? { borderColor: "#130e67", color: "#130e67" }
+                          : {}
+                      }
+                    >
+                      3
+                    </span>
+                    <h3
+                      className={`text-sm font-semibold ${selectedSession ? "" : "text-gray-500"}`}
+                      style={selectedSession ? { color: "#130e67" } : {}}
+                    >
+                      Session Type
+                    </h3>
+                  </div>
+                  <FiChevronDown
+                    className={`text-gray-400 transition-transform duration-200 ${openSections.session ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openSections.session && (
+                  <div className="space-y-2">
+                    {sessionTypes.length > 0 ? (
+                      sessionTypes.map((st) => {
+                        const isFull = st.availableSeats === 0;
+                        const isLow =
+                          st.availableSeats > 0 && st.availableSeats < 5;
+                        return (
+                          <button
+                            key={st.id}
+                            disabled={isFull}
+                            onClick={() => !isFull && setSelectedSession(st)}
+                            className={`w-full rounded-xl border p-3 text-left transition-colors ${
+                              isFull
+                                ? "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed"
+                                : selectedSession?.id === st.id
+                                  ? "border-indigo-500 bg-indigo-50 text-indigo-900"
+                                  : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-semibold capitalize text-gray-800">
+                                {st.name}
+                              </span>
+                              <span className="text-sm font-semibold text-indigo-600">
+                                {st.priceModifier > 0
+                                  ? `+$${st.priceModifier}`
+                                  : "Included"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-gray-400">
+                              {isFull ? (
+                                <span className="text-red-500 font-medium">
+                                  Fully Booked
+                                </span>
+                              ) : isLow ? (
+                                <span className="text-amber-500 font-medium">
+                                  Only {st.availableSeats} seats left!
+                                </span>
+                              ) : (
+                                <span>{st.availableSeats} seats available</span>
+                              )}
+                              {st.location && (
+                                <span className="flex items-center gap-1">
+                                  <FiMapPin className="text-xs" />
+                                  {st.location}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <p className="text-xs text-gray-400">
+                        {selectedTimeSlot
+                          ? "No session types available"
+                          : "Select a time slot first"}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -787,7 +878,9 @@ function CourseDetailPage() {
               </div>
 
               {enrollError && (
-                <p className="text-xs text-red-500 text-center">{enrollError}</p>
+                <p className="text-xs text-red-500 text-center">
+                  {enrollError}
+                </p>
               )}
 
               {isAuthenticated && !user?.profileComplete && (

@@ -13,8 +13,8 @@ interface ProfileForm {
 function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, updateUser } = useAuth();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
-  user?.avatar ? `${user.avatar}?t=${Date.now()}` : null
-);
+    user?.avatar ? `${user.avatar}?t=${Date.now()}` : null,
+  );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarError, setAvatarError] = useState("");
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
@@ -89,7 +89,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div className="relative z-10 w-full max-w-[480px] rounded-2xl bg-white px-10 py-8 shadow-xl">
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute right-5 top-5 text-gray-400 hover:text-gray-600"
@@ -101,7 +100,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
           Profile
         </h2>
 
-        {/* Avatar + username */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
             {avatarPreview ? (
@@ -137,7 +135,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Full Name */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Full Name
@@ -147,8 +144,14 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
               placeholder="Username"
               {...register("full_name", {
                 required: "Name is required",
-                minLength: { value: 3, message: "Name must be at least 3 characters" },
-                maxLength: { value: 50, message: "Name must not exceed 50 characters" },
+                minLength: {
+                  value: 3,
+                  message: "Name must be at least 3 characters",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "Name must not exceed 50 characters",
+                },
               })}
               className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${
                 errors.full_name || serverErrors.full_name
@@ -163,7 +166,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          {/* Email (read only) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Email
@@ -176,7 +178,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
             />
           </div>
 
-          {/* Mobile + Age row */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -240,7 +241,6 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          {/* Avatar upload */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Upload Avatar
@@ -270,9 +270,7 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
                       Upload file
                     </span>
                   </p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    JPG, PNG or WebP
-                  </p>
+                  <p className="mt-1 text-xs text-gray-400">JPG, PNG or WebP</p>
                 </>
               )}
             </div>
@@ -291,14 +289,12 @@ function ProfileModal({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          {/* Success */}
           {success && (
             <p className="text-center text-sm text-green-500 font-medium">
               Profile updated successfully ✓
             </p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

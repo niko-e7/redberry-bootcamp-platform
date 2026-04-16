@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaRocket } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+  FaRocket,
+} from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -21,7 +28,9 @@ function Footer() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
                   <FaRocket className="text-sm" />
                 </div>
-                <h3 className="text-[28px] font-semibold text-indigo-950">Bootcamp</h3>
+                <h3 className="text-[28px] font-semibold text-indigo-950">
+                  Bootcamp
+                </h3>
               </div>
 
               <p className="max-w-[250px] text-sm leading-6 text-indigo-950">
@@ -41,11 +50,15 @@ function Footer() {
 
             <div className="flex gap-24">
               <div>
-                <h4 className="mb-4 text-lg font-semibold text-indigo-950">Explore</h4>
+                <h4 className="mb-4 text-lg font-semibold text-indigo-950">
+                  Explore
+                </h4>
                 <ul className="space-y-2 text-base text-gray-500">
                   <li
                     className="cursor-pointer hover:text-indigo-600"
-                    onClick={() => isAuthenticated ? openSidebar() : openLogin()}
+                    onClick={() =>
+                      isAuthenticated ? openSidebar() : openLogin()
+                    }
                   >
                     Enrolled Courses
                   </li>
@@ -59,11 +72,15 @@ function Footer() {
               </div>
 
               <div>
-                <h4 className="mb-4 text-lg font-semibold text-indigo-950">Account</h4>
+                <h4 className="mb-4 text-lg font-semibold text-indigo-950">
+                  Account
+                </h4>
                 <ul className="space-y-2 text-base text-gray-500">
                   <li
                     className="cursor-pointer hover:text-indigo-600"
-                    onClick={() => isAuthenticated ? setShowProfile(true) : openLogin()}
+                    onClick={() =>
+                      isAuthenticated ? setShowProfile(true) : openLogin()
+                    }
                   >
                     My Profile
                   </li>
@@ -71,7 +88,9 @@ function Footer() {
               </div>
 
               <div>
-                <h4 className="mb-4 text-lg font-semibold text-indigo-950">Contact</h4>
+                <h4 className="mb-4 text-lg font-semibold text-indigo-950">
+                  Contact
+                </h4>
                 <ul className="space-y-3 text-base text-gray-500">
                   <li className="flex items-center gap-2">
                     <FiMail className="text-indigo-950" />

@@ -1,6 +1,12 @@
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { FiX, FiEye, FiEyeOff, FiUploadCloud, FiChevronLeft } from "react-icons/fi";
+import {
+  FiX,
+  FiEye,
+  FiEyeOff,
+  FiUploadCloud,
+  FiChevronLeft,
+} from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
 interface RegisterForm {
@@ -36,7 +42,8 @@ function RegisterModal() {
   const nextStep = async () => {
     let valid = false;
     if (step === 1) valid = await trigger("email");
-    if (step === 2) valid = await trigger(["password", "password_confirmation"]);
+    if (step === 2)
+      valid = await trigger(["password", "password_confirmation"]);
     if (step === 3) valid = await trigger("username");
     if (valid) setStep((s) => s + 1);
   };
@@ -77,12 +84,9 @@ function RegisterModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
 
-      {/* Modal */}
       <div className="relative z-10 w-full max-w-[440px] rounded-2xl bg-white px-10 py-8 shadow-xl">
-        {/* Close */}
         <button
           onClick={closeModal}
           className="absolute right-5 top-5 text-gray-400 hover:text-gray-600"
@@ -90,7 +94,6 @@ function RegisterModal() {
           <FiX className="text-xl" />
         </button>
 
-        {/* Back */}
         {step > 1 && (
           <button
             onClick={() => setStep((s) => s - 1)}
@@ -107,7 +110,6 @@ function RegisterModal() {
           Join and start learning today
         </p>
 
-        {/* Progress bar */}
         <div className="flex gap-2 mb-8">
           {Array.from({ length: STEPS }).map((_, i) => (
             <div
@@ -120,7 +122,6 @@ function RegisterModal() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Step 1 — Email */}
           {step === 1 && (
             <>
               <div>
@@ -161,7 +162,6 @@ function RegisterModal() {
             </>
           )}
 
-          {/* Step 2 — Password */}
           {step === 2 && (
             <>
               <div>
@@ -240,7 +240,6 @@ function RegisterModal() {
             </>
           )}
 
-          {/* Step 3 — Username + Avatar */}
           {step === 3 && (
             <>
               <div>
@@ -267,7 +266,6 @@ function RegisterModal() {
                 )}
               </div>
 
-              {/* Avatar upload */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Upload Avatar
@@ -328,7 +326,6 @@ function RegisterModal() {
             </>
           )}
 
-          {/* Divider + switch to login */}
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-200" />
             <span className="text-xs text-gray-400">or</span>

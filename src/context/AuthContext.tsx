@@ -34,9 +34,11 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
+    localStorage.getItem("token"),
   );
-  const [modalState, setModalState] = useState<"login" | "register" | null>(null);
+  const [modalState, setModalState] = useState<"login" | "register" | null>(
+    null,
+  );
   const [showSidebar, setShowSidebar] = useState(false);
 
   // Attach token to all requests

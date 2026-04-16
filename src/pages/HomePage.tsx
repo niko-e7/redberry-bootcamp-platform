@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight, FiLock } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
-import { PiSparkleFill } from "react-icons/pi";
 import api from "../services/api";
 import type { Course } from "../types/course";
 import { useAuth } from "../context/AuthContext";
@@ -87,7 +86,7 @@ function HeroSlider() {
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-black/35" />
-      <div className="relative z-10 flex h-full flex-col justify-center px-16 max-w-[700px]">
+      <div className="relative z-10 flex h-full flex-col justify-center px-16 pb-12 max-w-[700px]">
         <h1 className="text-3xl font-bold text-white leading-tight mb-4">
           {slide.title}
         </h1>
@@ -132,12 +131,12 @@ function HeroSlider() {
 
 function FeaturedCourseCard({ course }: { course: Course }) {
   return (
-    <div className="flex flex-col rounded-2xl bg-white border border-gray-100 hover:border-indigo-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all">
+    <div className="flex flex-col rounded-xl bg-white border border-gray-100 hover:border-indigo-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all">
       <div className="p-3 pb-0">
         <img
           src={course.image}
           alt={course.title}
-          className="h-[220px] w-full object-cover rounded-xl"
+          className="h-[220px] w-full object-cover rounded-lg"
         />
       </div>
       <div className="flex flex-col flex-1 p-5">
@@ -193,12 +192,12 @@ function InProgressCard({
   const displayRating = rating || course.avgRating;
 
   return (
-    <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-indigo-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all">
-      <div className="flex gap-3 mb-3">
+    <div className="rounded-xl bg-white border border-gray-100 p-4 pt-2 pl-2 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-indigo-300 hover:shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-all">
+      <div className="flex gap-3 mb-1.5">
         <img
           src={course.image}
           alt={course.title}
-          className="h-16 w-20 rounded-lg object-cover shrink-0"
+          className="h-20 w-24 rounded-md object-cover shrink-0 self-end ml-1"
         />
         <div className="flex flex-col justify-center min-w-0">
           <p className="text-xs text-gray-400 mb-1">
@@ -219,9 +218,9 @@ function InProgressCard({
         ) : null}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pl-1.5">
         <div className="flex-1 max-w-[70%]">
-          <p className="text-xs text-gray-500 mb-1">{progress}% Complete</p>
+          <p className="text-xs text-gray-900 mb-1">{progress}% Complete</p>
           <div className="h-2.5 w-full rounded-full bg-indigo-100">
             <div
               className="h-2.5 rounded-full bg-indigo-600 transition-all duration-300"
@@ -295,10 +294,10 @@ function FeaturedCoursesSection() {
 
   return (
     <section>
-      <h2 className="text-2xl font-bold text-gray-900 mb-1">
+      <h2 className="text-3xl font-bold text-gray-900 mb-1">
         Start Learning Today
       </h2>
-      <p className="text-sm text-gray-500 mb-8">
+      <p className="text-sm text-gray-700 mb-8">
         Choose from our most popular courses and begin your journey
       </p>
 
@@ -307,7 +306,7 @@ function FeaturedCoursesSection() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-[420px] rounded-2xl bg-gray-100 animate-pulse"
+              className="h-[420px] rounded-xl bg-gray-100 animate-pulse"
             />
           ))}
         </div>
@@ -369,10 +368,10 @@ function ContinueLearningSection() {
     <section>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900">
             Continue Learning
           </h2>
-          <p className="text-sm text-gray-500 mt-1">Pick up where you left</p>
+          <p className="text-sm text-gray-700 mt-1">Pick up where you left</p>
         </div>
         {isAuthenticated && enrollments.length > 0 && (
           <button
@@ -391,7 +390,7 @@ function ContinueLearningSection() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-24 rounded-2xl bg-gray-100 animate-pulse"
+              className="h-24 rounded-xl bg-gray-100 animate-pulse"
             />
           ))}
         </div>

@@ -101,7 +101,7 @@ function CourseCard({ course }: { course: Course }) {
               ${Math.round(course.basePrice)}
             </span>
           </div>
-          <span className="rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white">
+          <span className="rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-indigo-700 transition-colors">
             Details
           </span>
         </div>
@@ -248,14 +248,15 @@ function CoursesPage() {
       <div className="flex gap-8">
         <aside className="w-[260px] shrink-0">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Filters</h2>
-            <button
-              onClick={clearAll}
-              className="text-xs text-gray-400 hover:text-indigo-600 transition-colors duration-200"
-            >
-              Clear All Filters{" "}
-              {activeFilterCount > 0 && `· ${activeFilterCount}`}
-            </button>
+            <h2 className="text-2xl font-bold text-gray-900">Filters</h2>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={clearAll}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                Clear All Filters <FiX className="text-xs" />
+              </button>
+            )}
           </div>
 
           <div className="mb-6">
@@ -299,16 +300,12 @@ function CoursesPage() {
                 </button>
               ))}
               {topics.length === 0 && (
-                <p className="text-xs text-gray-400">
-                  {selectedCategories.length === 0
-                    ? "Select a category to see topics"
-                    : "No topics found"}
-                </p>
+                <p className="text-xs text-gray-400">No topics found</p>
               )}
             </div>
           </div>
 
-          <div>
+          <div className="mb-2">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               Instructor
             </h3>
@@ -337,13 +334,23 @@ function CoursesPage() {
               ))}
             </div>
           </div>
+
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-400">
+              {activeFilterCount} Filters Active
+            </p>
+          </div>
         </aside>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-gray-500">
               Showing{" "}
-              <span className="font-semibold text-gray-900">{meta.total}</span>{" "}
+              <span className="font-semibold text-gray-500">
+                {courses.length}
+              </span>{" "}
+              out of{" "}
+              <span className="font-semibold text-gray-500">{meta.total}</span>{" "}
               {meta.total === 1 ? "course" : "courses"}
             </p>
 
@@ -426,7 +433,7 @@ function CoursesPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={meta.currentPage === 1}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:border-indigo-400 disabled:opacity-40 transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-400 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-40 transition-colors"
               >
                 <FiChevronLeft />
               </button>
@@ -440,10 +447,10 @@ function CoursesPage() {
                   <button
                     key={i}
                     onClick={() => setPage(Number(p))}
-                    className={`h-9 w-9 rounded-lg text-sm font-medium transition-colors ${
+                    className={`h-9 w-9 rounded-md text-sm font-medium transition-colors ${
                       meta.currentPage === p
-                        ? "bg-indigo-600 text-white"
-                        : "border border-gray-200 text-gray-600 hover:border-indigo-400"
+                        ? "bg-indigo-600 text-white border border-indigo-600"
+                        : "bg-white border border-gray-300 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300"
                     }`}
                   >
                     {p}
@@ -454,7 +461,7 @@ function CoursesPage() {
               <button
                 onClick={() => setPage((p) => Math.min(meta.lastPage, p + 1))}
                 disabled={meta.currentPage === meta.lastPage}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:border-indigo-400 disabled:opacity-40 transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-400 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-40 transition-colors"
               >
                 <FiChevronRight />
               </button>

@@ -27,7 +27,7 @@ function LoginModal() {
       await login(data.email, data.password);
     } catch (err: any) {
       setServerError(
-        err.response?.data?.message ?? "Invalid credentials. Please try again."
+        err.response?.data?.message ?? "Invalid credentials. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -36,15 +36,9 @@ function LoginModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={closeModal}
-      />
+      <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
 
-      {/* Modal */}
       <div className="relative z-10 w-full max-w-[440px] rounded-2xl bg-white px-10 py-8 shadow-xl">
-        {/* Close */}
         <button
           onClick={closeModal}
           className="absolute right-5 top-5 text-gray-400 hover:text-gray-600"
@@ -60,7 +54,6 @@ function LoginModal() {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Email */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Email*
@@ -81,11 +74,12 @@ function LoginModal() {
               }`}
             />
             {errors.email && (
-              <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Password*
@@ -111,16 +105,16 @@ function LoginModal() {
               </button>
             </div>
             {errors.password && (
-              <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
-          {/* Server error */}
           {serverError && (
             <p className="text-center text-sm text-red-500">{serverError}</p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -129,7 +123,6 @@ function LoginModal() {
             {loading ? "Logging in..." : "Log In"}
           </button>
 
-          {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-200" />
             <span className="text-xs text-gray-400">or</span>

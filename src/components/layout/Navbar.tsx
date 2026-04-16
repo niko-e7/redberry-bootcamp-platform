@@ -7,15 +7,20 @@ import { useAuth } from "../../context/AuthContext";
 import ProfileModal from "../modals/ProfileModal";
 
 function Navbar() {
-  const { isAuthenticated, user, openLogin, openRegister, logout, openSidebar } = useAuth();
+  const {
+    isAuthenticated,
+    user,
+    openLogin,
+    openRegister,
+    logout,
+    openSidebar,
+  } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   return (
     <>
-      {showProfile && (
-        <ProfileModal onClose={() => setShowProfile(false)} />
-      )}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
       <header className="border-b border-gray-200 bg-[#f5f5f5]">
         <div className="mx-auto flex h-[84px] w-full max-w-[1920px] items-center justify-between px-24">

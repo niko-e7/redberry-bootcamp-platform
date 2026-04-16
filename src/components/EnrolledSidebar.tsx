@@ -201,7 +201,7 @@ function EnrolledSidebar({ onClose }: Props) {
                 className="rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:border-indigo-400 hover:shadow-md"
               >
                 <div className="flex gap-3 mb-3">
-                  <div className="w-[160px] shrink-0 self-stretch">
+                  <div className="w-[180px] h-[140px] shrink-0 self-stretch">
                     <img
                       src={enrollment.course.image}
                       alt={enrollment.course.title}
@@ -218,8 +218,14 @@ function EnrolledSidebar({ onClose }: Props) {
                         enrollment.course.avgRating
                       ) && (
                         <span className="flex items-center gap-0.5 shrink-0 ml-1">
-                          <FaStar className="text-xs" style={{ color: "#f4a316" }} />
-                          <span className="text-xs font-semibold" style={{ color: "#525252" }}>
+                          <FaStar
+                            className="text-xs"
+                            style={{ color: "#f4a316" }}
+                          />
+                          <span
+                            className="text-xs font-semibold"
+                            style={{ color: "#525252" }}
+                          >
                             {courseRatings[enrollment.course.id] ||
                               enrollment.course.avgRating}
                           </span>
